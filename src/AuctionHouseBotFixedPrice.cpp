@@ -69,10 +69,10 @@ static bool containsInMap(uint32 item, const unordered_map<uint32, float>& mapOb
     return mapObj.find(item) != mapObj.end();
 }
 
-static FixedPriceResult buildResultWithStandardVariance(const float& outBuyoutPrice)
-{
-    return { outBuyoutPrice, DEFAULT_VARIANCE_TOP_PERCENT, DEFAULT_VARIANCE_BOTTOM_PERCENT };
-}
+// static FixedPriceResult buildResultWithStandardVariance(const float& outBuyoutPrice)
+// {
+//     return { outBuyoutPrice, DEFAULT_VARIANCE_TOP_PERCENT, DEFAULT_VARIANCE_BOTTOM_PERCENT };
+// }
 
 FixedPriceResult getFixedPriceIfApplicable (
     ItemTemplate const* itemProto,
@@ -81,22 +81,30 @@ FixedPriceResult getFixedPriceIfApplicable (
     float sellVarianceBuyoutPriceBottomPercent
 )
 {
+    float newBuyoutPrice = 0;
     // 20 (32) slot bags 123g
     if (containsInSet(itemProto->ItemId, BAGS_TWENTY))
     {
-        outBuyoutPrice = 1230000;
+        newBuyoutPrice = 1230000;
     }
 
     // 24 (34) slot bags 700g
     if (containsInSet(itemProto->ItemId, BAGS_TWENTY_FOUR))
     {
-        outBuyoutPrice = 7000000;
+        newBuyoutPrice = 7000000;
     }
     
     auto it = PRICE_BY_ITEMS.find(itemProto->ItemId);
     if (it != PRICE_BY_ITEMS.end())
     {
-        outBuyoutPrice = it->second;
+        newBuyoutPrice = it->second;
     }
-    return buildResultWithStandardVariance(outBuyoutPrice);
+    
+    if (newBuyoutPrice != 0)
+    {
+        outBuyoutPrice = newBuyoutPrice;
+        sellVarianceBuyoutPriceTopPercent = DEFAULT_VARIANCE_TOP_PERCENT;
+        sellVarianceBuyoutPriceBottomPercent = DEFAULT_VARIANCE_BOTTOM_PERCENT;
+    }
+    return {outBuyoutPrice, sellVarianceBuyoutPriceTopPercent, sellVarianceBuyoutPriceBottomPercent};
 }
