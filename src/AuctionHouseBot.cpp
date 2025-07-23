@@ -113,6 +113,31 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
     default:                        break;
     }
 
+    float tradeGoodsSubClassPriceMultiplier = 1;
+    if (itemProto->Class == ITEM_CLASS_TRADE_GOODS)
+    {
+        switch (itemProto->SubClass)
+        {
+        case ITEM_SUBCLASS_TRADE_GOODS:             tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodTradeGoods; break;
+        case ITEM_SUBCLASS_PARTS:                   tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodParts; break;
+        case ITEM_SUBCLASS_EXPLOSIVES:              tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodExplosives; break;
+        case ITEM_SUBCLASS_DEVICES:                 tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodDevices; break;
+        case ITEM_SUBCLASS_JEWELCRAFTING:           tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodJewelcrafting; break;
+        case ITEM_SUBCLASS_CLOTH:                   tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodCloth; break;
+        case ITEM_SUBCLASS_LEATHER:                 tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodLeather; break;
+        case ITEM_SUBCLASS_METAL_STONE:             tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMetalStone; break;
+        case ITEM_SUBCLASS_MEAT:                    tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMeat; break;
+        case ITEM_SUBCLASS_HERB:                    tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodHerb; break;
+        case ITEM_SUBCLASS_ELEMENTAL:               tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodElemental; break;
+        case ITEM_SUBCLASS_TRADE_GOODS_OTHER:       tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodOther; break;
+        case ITEM_SUBCLASS_ENCHANTING:              tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodEnchanting; break;
+        case ITEM_SUBCLASS_MATERIAL:                tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMaterial; break;
+        case ITEM_SUBCLASS_ARMOR_ENCHANTMENT:       tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodArmorEnhancement; break;
+        case ITEM_SUBCLASS_WEAPON_ENCHANTMENT:      tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodWeaponEnhancement; break;
+        default:                                    break;
+        }
+    }
+
     float qualityPriceMultplier = 1;
     switch (itemProto->Quality)
     {
@@ -164,6 +189,7 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
     // Multiply the price based on multipliers
     outBuyoutPrice *= qualityPriceMultplier;
     outBuyoutPrice *= classPriceMultiplier;
+    outBuyoutPrice *= tradeGoodsSubClassPriceMultiplier;
 
     // Apply item level multiplier
     if (ItemLevelPriceMultiplier > 0.0f && itemProto->ItemLevel > 0)
@@ -244,6 +270,31 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     default:                        break;
     }
 
+    float tradeGoodsSubClassPriceMultiplier = 1;
+    if (itemProto->Class == ITEM_CLASS_TRADE_GOODS)
+    {
+        switch (itemProto->SubClass)
+        {
+        case ITEM_SUBCLASS_TRADE_GOODS:             tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodTradeGoods; break;
+        case ITEM_SUBCLASS_PARTS:                   tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodParts; break;
+        case ITEM_SUBCLASS_EXPLOSIVES:              tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodExplosives; break;
+        case ITEM_SUBCLASS_DEVICES:                 tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodDevices; break;
+        case ITEM_SUBCLASS_JEWELCRAFTING:           tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodJewelcrafting; break;
+        case ITEM_SUBCLASS_CLOTH:                   tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodCloth; break;
+        case ITEM_SUBCLASS_LEATHER:                 tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodLeather; break;
+        case ITEM_SUBCLASS_METAL_STONE:             tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMetalStone; break;
+        case ITEM_SUBCLASS_MEAT:                    tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMeat; break;
+        case ITEM_SUBCLASS_HERB:                    tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodHerb; break;
+        case ITEM_SUBCLASS_ELEMENTAL:               tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodElemental; break;
+        case ITEM_SUBCLASS_TRADE_GOODS_OTHER:       tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodOther; break;
+        case ITEM_SUBCLASS_ENCHANTING:              tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodEnchanting; break;
+        case ITEM_SUBCLASS_MATERIAL:                tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMaterial; break;
+        case ITEM_SUBCLASS_ARMOR_ENCHANTMENT:       tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodArmorEnhancement; break;
+        case ITEM_SUBCLASS_WEAPON_ENCHANTMENT:      tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodWeaponEnhancement; break;
+        default:                                    break;
+        }
+    }
+
     float qualityPriceMultplier = 1;
     switch (itemProto->Quality)
     {
@@ -293,6 +344,7 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     // Multiply the price based on multipliers
     outBuyoutPrice *= qualityPriceMultplier;
     outBuyoutPrice *= classPriceMultiplier;
+    outBuyoutPrice *= tradeGoodsSubClassPriceMultiplier;
 
     // Apply item level multiplier
     if (ItemLevelPriceMultiplier > 0.0f && itemProto->ItemLevel > 0)
@@ -1004,6 +1056,25 @@ void AuctionHouseBot::InitializeConfiguration()
     PriceMultiplierCategoryReagent = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Reagent", 1);
     PriceMultiplierCategoryProjectile = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Projectile", 1);
     PriceMultiplierCategoryTradeGood = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood", 2);
+
+    // Trade goods additional multipliers
+    PriceMultiplierCategoryTradeGoodTradeGoods = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.TradeGoods", 1);
+    PriceMultiplierCategoryTradeGoodParts = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Parts", 1);
+    PriceMultiplierCategoryTradeGoodExplosives = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Explosives", 1);
+    PriceMultiplierCategoryTradeGoodDevices = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Devices", 1);
+    PriceMultiplierCategoryTradeGoodJewelcrafting = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Jewelcrafting", 1);
+    PriceMultiplierCategoryTradeGoodCloth = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Cloth", 1);
+    PriceMultiplierCategoryTradeGoodLeather = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Leather", 1);
+    PriceMultiplierCategoryTradeGoodMetalStone = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.MetalStone", 1);
+    PriceMultiplierCategoryTradeGoodMeat = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Meat", 1);
+    PriceMultiplierCategoryTradeGoodHerb = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Herb", 1);
+    PriceMultiplierCategoryTradeGoodElemental = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Elemental", 1);
+    PriceMultiplierCategoryTradeGoodOther = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Other", 1);
+    PriceMultiplierCategoryTradeGoodEnchanting = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Enchanting", 1);
+    PriceMultiplierCategoryTradeGoodMaterial = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.Material", 1);
+    PriceMultiplierCategoryTradeGoodArmorEnhancement = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.ArmorEnhancement", 1);
+    PriceMultiplierCategoryTradeGoodWeaponEnhancement = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood.WeaponEnhancement", 1);
+
     PriceMultiplierCategoryGeneric = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Generic", 1);
     PriceMultiplierCategoryRecipe = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Recipe", 1);
     PriceMultiplierCategoryQuiver = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Quiver", 1);

@@ -172,6 +172,10 @@ AuctionHouseBot.PriceMinimumCenterBase.OverrideItems =
 #		 the pricing algorithm has many steps to it and this is just a tuning
 #        modifier.
 #
+#    AuctionHouseBot.PriceMultiplier.Category.TradeGood.*
+#        Additional fine-tuning multiplier for trade goods to better mimic real life
+#        auction house. Will be multiplied on top of the base TradeGood multiplier.
+#
 #    AuctionHouseBot.PriceMultiplier.ItemLevel.*
 #        Multiplier applied to item level when determining auction price
 #        Final multiplier = itemLevel * this value.  Set to 0 (or less) to disable.
@@ -193,6 +197,23 @@ AuctionHouseBot.PriceMultiplier.Category.Quest = 1
 AuctionHouseBot.PriceMultiplier.Category.Key = 1
 AuctionHouseBot.PriceMultiplier.Category.Misc = 1
 AuctionHouseBot.PriceMultiplier.Category.Glyph = 1
+
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.TradeGoods = 1
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Parts = 9
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Explosives = 1
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Devices = 9
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Jewelcrafting = 10
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Cloth = 5
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Leather = 5
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.MetalStone = 5
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Meat = 2
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Herb = 5
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Elemental = 9
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Other = 1
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Enchanting = 10
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.Material = 1
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.ArmorEnhancement = 1
+AuctionHouseBot.PriceMultiplier.Category.TradeGood.WeaponEnhancement = 1
 
 AuctionHouseBot.PriceMultiplier.Quality.Poor = 1
 AuctionHouseBot.PriceMultiplier.Quality.Normal = 1
