@@ -8,6 +8,7 @@
 #include "Mail.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "Chat.h"
 
 class AHBot_WorldScript : public WorldScript
 {
@@ -109,9 +110,41 @@ public:
     }
 };
 
+using namespace Acore::ChatCommands;
+
+class AHBot_CommandScript : public CommandScript
+{
+public:
+    AHBot_CommandScript() : CommandScript("AHBot_CommandScript") {}
+
+    ChatCommandTable GetCommands() const override
+    {
+        static ChatCommandTable AHBotCommandTable =
+        {
+            { "buyeritemvalue",  HandleBuyerItemValueCommand, SEC_PLAYER, Console::No }
+        };
+
+        static ChatCommandTable AHBotBaseTable =
+        {
+            { "ahbot",  AHBotCommandTable }
+        };
+
+        return AHBotBaseTable;
+    }
+
+    static bool HandleBuyerItemValueCommand(ChatHandler* handler, ItemTemplate const* itemTemplate)
+    {
+        uint64 willingToSpendPerItemPrice = 0;
+        auctionbot->calculateMinimumItemValueForBuyer(itemTemplate, willingToSpendPerItemPrice);
+        handler->PSendSysMessage("AHBOT_BUYERITEMVAULE:{}:{}", itemTemplate->ItemId, willingToSpendPerItemPrice);
+        return true;
+    }
+};
+
 void AddAHBotScripts()
 {
     new AHBot_WorldScript();
     new AHBot_AuctionHouseScript();
     new AHBot_MailScript();
+    new AHBot_CommandScript();
 }
