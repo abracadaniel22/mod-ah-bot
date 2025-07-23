@@ -28,6 +28,7 @@
 #include "DatabaseEnv.h"
 
 #include <set>
+#include "AuctionHouseBotFixedPrice.h"
 
 using namespace std;
 
@@ -153,7 +154,7 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
         default:                        break;
         }
     }
-
+    
     // Set the minimum price
     if (outBuyoutPrice < PriceMinimumCenterBase)
         outBuyoutPrice = urand(PriceMinimumCenterBase * 0.75, PriceMinimumCenterBase * 1.25);
@@ -177,6 +178,20 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
     // Calculate buyout price with a variance
     float sellVarianceBuyoutPriceTopPercent = 1.30;
     float sellVarianceBuyoutPriceBottomPercent = 0.70;
+
+    //////////////////////////////////////
+    // Fixed Price modifications
+    //////////////////////////////////////
+
+    FixedPriceResult fixedPriceResult =  getFixedPriceIfApplicable(itemProto, outBuyoutPrice, sellVarianceBuyoutPriceTopPercent, sellVarianceBuyoutPriceBottomPercent);
+    outBuyoutPrice = fixedPriceResult.outBuyoutPrice;
+    sellVarianceBuyoutPriceTopPercent = fixedPriceResult.sellVarianceBuyoutPriceTopPercent;
+    sellVarianceBuyoutPriceBottomPercent = fixedPriceResult.sellVarianceBuyoutPriceBottomPercent;
+
+    //////////////////////////////////////
+    // end of Fixed Price modifications
+    //////////////////////////////////////
+
     outBuyoutPrice = urand(sellVarianceBuyoutPriceBottomPercent * outBuyoutPrice, sellVarianceBuyoutPriceTopPercent * outBuyoutPrice);
 
     // Calculate a bid price based on a variance against buyout price
