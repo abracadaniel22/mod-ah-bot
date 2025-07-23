@@ -136,6 +136,7 @@ class AuctionHouseBot
 public:
     std::vector<AuctionHouseBotCharacter> AHCharacters;
     uint32 CurrentBotCharGUID;
+    void calculateMinimumItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice);
 
 private:
     bool debug_Out;
@@ -237,6 +238,7 @@ private:
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     uint32 getStackSizeForItem(ItemTemplate const* itemProto) const;
     void calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice);
+    void calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice);
     void populatetemClassSeedListForItemClass(uint32 itemClass, uint32 itemClassSeedWeight);
     void populateItemClassProportionList();
     void populateItemCandidateList();
