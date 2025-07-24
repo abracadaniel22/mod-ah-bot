@@ -136,7 +136,7 @@ public:
     {
         uint64 willingToSpendPerItemPrice = 0;
         auctionbot->calculateMinimumItemValueForBuyer(itemTemplate, willingToSpendPerItemPrice);
-        handler->PSendSysMessage("AHBOT_BUYERITEMVAULE:{}:{}", itemTemplate->ItemId, willingToSpendPerItemPrice);
+        handler->PSendSysMessage("AHBOT_BUYERITEMVALUE:{}:{}", itemTemplate->ItemId, willingToSpendPerItemPrice);
         return true;
     }
 };
