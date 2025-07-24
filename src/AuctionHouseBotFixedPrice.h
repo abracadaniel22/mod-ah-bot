@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "ItemTemplate.h"
+#include <unordered_map>
 
 struct FixedPriceResult 
 {
@@ -33,5 +34,6 @@ FixedPriceResult getFixedPriceIfApplicable (
     ItemTemplate const* itemProto,
     float outBuyoutPrice,
     float sellVarianceBuyoutPriceTopPercent,
-    float sellVarianceBuyoutPriceBottomPercent
+    float sellVarianceBuyoutPriceBottomPercent,
+    const std::unordered_map<uint32, float>& prices
 );

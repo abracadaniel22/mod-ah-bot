@@ -234,6 +234,8 @@ private:
     float PriceMultiplierQualityLegendary;
     float PriceMultiplierQualityArtifact;
     float PriceMultiplierQualityHeirloom;
+    std::unordered_map<uint32, float> fixedPrices;
+
     uint32 PriceMinimumCenterBaseConsumable;
     uint32 PriceMinimumCenterBaseContainer;
     uint32 PriceMinimumCenterBaseWeapon;

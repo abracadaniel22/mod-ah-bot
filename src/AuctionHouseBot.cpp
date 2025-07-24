@@ -29,6 +29,7 @@
 
 #include <set>
 #include "AuctionHouseBotFixedPrice.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -215,7 +216,7 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
     // Fixed Price modifications
     //////////////////////////////////////
 
-    FixedPriceResult fixedPriceResult =  getFixedPriceIfApplicable(itemProto, outBuyoutPrice, sellVarianceBuyoutPriceTopPercent, sellVarianceBuyoutPriceBottomPercent);
+    FixedPriceResult fixedPriceResult =  getFixedPriceIfApplicable(itemProto, outBuyoutPrice, sellVarianceBuyoutPriceTopPercent, sellVarianceBuyoutPriceBottomPercent, fixedPrices);
     outBuyoutPrice = fixedPriceResult.outBuyoutPrice;
     sellVarianceBuyoutPriceTopPercent = fixedPriceResult.sellVarianceBuyoutPriceTopPercent;
     sellVarianceBuyoutPriceBottomPercent = fixedPriceResult.sellVarianceBuyoutPriceBottomPercent;
@@ -280,7 +281,7 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     //////////////////////////////////////
 
     float discard = 0;
-    FixedPriceResult fixedPriceResult =  getFixedPriceIfApplicable(itemProto, outBuyoutPrice, discard, discard);
+    FixedPriceResult fixedPriceResult =  getFixedPriceIfApplicable(itemProto, outBuyoutPrice, discard, discard, fixedPrices);
     outBuyoutPrice = fixedPriceResult.outBuyoutPrice;
 
     //////////////////////////////////////
@@ -1028,6 +1029,15 @@ void AuctionHouseBot::InitializeConfiguration()
     PriceMinimumCenterBaseMisc = sConfigMgr->GetOption<uint32>("AuctionHouseBot.PriceMinimumCenterBase.Misc", 1000);
     PriceMinimumCenterBaseGlyph = sConfigMgr->GetOption<uint32>("AuctionHouseBot.PriceMinimumCenterBase.Glyph", 1000);
     AddPriceMinimumOverrides(sConfigMgr->GetOption<std::string>("AuctionHouseBot.PriceMinimumCenterBase.OverrideItems", ""));
+
+    std::vector<string> keys = sConfigMgr->GetKeysByString("AuctionHouseBot.FixedPrices.");
+    for (string const& key : keys)
+    {
+        string itemIdStr = key.substr(28);
+        uint32 const& itemId = static_cast<uint32>(std::stoul(itemIdStr));
+        float price = sConfigMgr->GetOption<float>(key, 1);
+        fixedPrices.insert({itemId, price});
+    }
 
     // Disabled Items
     DisabledItemTextFilter = sConfigMgr->GetOption<bool>("AuctionHouseBot.DisabledItemTextFilter", true);

@@ -267,6 +267,20 @@ AuctionHouseBot.RandomStackRatio.Misc = 100
 AuctionHouseBot.RandomStackRatio.Glyph = 0
 
 ###############################################################################
+#    AuctionHouseBot.FixedPrices.*
+#        Used to define item ids with fixed price, so the algorithm will ignore the multipliers for them, and
+#        just apply the fixed price as a starting point, then randomly apply the variances.
+#        Last part of the key is the item ID, and the value is the amount in copper.
+#       Examples:    
+#                    Set Magic Rooster Egg (item id 49290) price to be around 210K gold
+#                    AuctionHouseBot.FixedPrices.49290 = 2100000000
+###############################################################################
+# Magic rooster egg 210000
+AuctionHouseBot.FixedPrices.49290 = 2100000000
+# Wooly White Rhino 80000
+AuctionHouseBot.FixedPrices.54068 = 800000000
+
+###############################################################################
 #    AuctionHouseBot.DisabledItemTextFilter
 #        If true, this will hide items with bad names like "OLD" and "D'Sak"
 #    Default: True
