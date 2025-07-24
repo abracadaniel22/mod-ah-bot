@@ -270,21 +270,29 @@ AuctionHouseBot.RandomStackRatio.Glyph = 0
 #    AuctionHouseBot.FixedPrices.*
 #        Used to define item ids with fixed price, so the algorithm will ignore the multipliers for them, and
 #        just apply the fixed price as a starting point, then randomly apply the variances.
-#        Last part of the key is the item ID, and the value is the amount in copper.
+#        Each item has a pair of ItemId:price. You may specify many per line comma-separated.
+#        Up to 11 slots can be used for the pairs for better readability.
 #       Examples:    
-#                    Set Magic Rooster Egg (item id 49290) price to be around 210K gold
-#                    AuctionHouseBot.FixedPrices.49290 = 2100000000
-#                    Set Wooly White Rhino (item id 54068) price to be around 80K gold
-#                    AuctionHouseBot.FixedPrices.54068 = 800000000
+#                    Example 1:
+#                    Set Magic Rooster Egg (item id 49290) price to be around 210K gold, and 
+#                    Wooly White Rhino (item id 54068) price to be around 80K gold
+#                    AuctionHouseBot.FixedPrices.0 = 49290:2100000000,54068:800000000
+#                    
+#                    Example 2:
+#                    Set Wool cloth to 1 silver
+#                    AuctionHouseBot.FixedPrices.1 = 2592:100
 ###############################################################################
-AuctionHouseBot.FixedPrice = 000:10000
-
-# Try this
-
-#AuctionHouseBot.FixedPrices.0
-#AuctionHouseBot.FixedPrices.1
-#AuctionHouseBot.FixedPrices.2
-#AuctionHouseBot.FixedPrices.3
+AuctionHouseBot.FixedPrices.0 = 000:1
+AuctionHouseBot.FixedPrices.1 = 000:1
+AuctionHouseBot.FixedPrices.2 = 000:1
+AuctionHouseBot.FixedPrices.3 = 000:1
+AuctionHouseBot.FixedPrices.4 = 000:1
+AuctionHouseBot.FixedPrices.5 = 000:1
+AuctionHouseBot.FixedPrices.6 = 000:1
+AuctionHouseBot.FixedPrices.7 = 000:1
+AuctionHouseBot.FixedPrices.8 = 000:1
+AuctionHouseBot.FixedPrices.9 = 000:1
+AuctionHouseBot.FixedPrices.10 = 000:1
 
 ###############################################################################
 #    AuctionHouseBot.DisabledItemTextFilter
