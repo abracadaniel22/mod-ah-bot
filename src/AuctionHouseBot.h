@@ -131,6 +131,14 @@ public:
     ObjectGuid::LowType CharacterGUID;
 };
 
+struct PriceMultipliers 
+{
+    float classPriceMultiplier;
+    float tradeGoodsSubClassPriceMultiplier;
+    float qualityPriceMultplier;
+    uint64 PriceMinimumCenterBase;
+};
+
 class AuctionHouseBot
 {
 public:
@@ -255,6 +263,7 @@ private:
 
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     uint32 getStackSizeForItem(ItemTemplate const* itemProto) const;
+    PriceMultipliers getPriceMultipliers(ItemTemplate const* itemProto);
     void calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice);
     void calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice);
     void populatetemClassSeedListForItemClass(uint32 itemClass, uint32 itemClassSeedWeight);

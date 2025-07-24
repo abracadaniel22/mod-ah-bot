@@ -86,11 +86,8 @@ uint32 AuctionHouseBot::getStackSizeForItem(ItemTemplate const* itemProto) const
         return 1;
 }
 
-void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
+PriceMultipliers AuctionHouseBot::getPriceMultipliers(ItemTemplate const* itemProto)
 {
-    // Start with a buyout price related to the sell price
-    outBuyoutPrice = itemProto->SellPrice;
-
     // Get the price multipliers
     float classPriceMultiplier = 1;
     switch (itemProto->Class)
@@ -179,17 +176,26 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
         default:                        break;
         }
     }
+    return {classPriceMultiplier, tradeGoodsSubClassPriceMultiplier, qualityPriceMultplier, PriceMinimumCenterBase};
+}
+
+void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
+{
+    PriceMultipliers priceMultipliers = getPriceMultipliers(itemProto);
+
+    // Start with a buyout price related to the sell price
+    outBuyoutPrice = itemProto->SellPrice;
     
     // Set the minimum price
-    if (outBuyoutPrice < PriceMinimumCenterBase)
-        outBuyoutPrice = urand(PriceMinimumCenterBase * 0.75, PriceMinimumCenterBase * 1.25);
+    if (outBuyoutPrice < priceMultipliers.PriceMinimumCenterBase)
+        outBuyoutPrice = urand(priceMultipliers.PriceMinimumCenterBase * 0.75, priceMultipliers.PriceMinimumCenterBase * 1.25);
     else
         outBuyoutPrice = urand(outBuyoutPrice * 0.75, outBuyoutPrice * 1.25);
 
     // Multiply the price based on multipliers
-    outBuyoutPrice *= qualityPriceMultplier;
-    outBuyoutPrice *= classPriceMultiplier;
-    outBuyoutPrice *= tradeGoodsSubClassPriceMultiplier;
+    outBuyoutPrice *= priceMultipliers.qualityPriceMultplier;
+    outBuyoutPrice *= priceMultipliers.classPriceMultiplier;
+    outBuyoutPrice *= priceMultipliers.tradeGoodsSubClassPriceMultiplier;
 
     // Apply item level multiplier
     if (ItemLevelPriceMultiplier > 0.0f && itemProto->ItemLevel > 0)
@@ -245,106 +251,19 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
  */
 void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice)
 {
+    PriceMultipliers priceMultipliers = getPriceMultipliers(itemProto);
+
     // Start with a buyout price related to the sell price
     outBuyoutPrice = itemProto->SellPrice;
-
-    // Get the price multipliers
-    float classPriceMultiplier = 1;
-    switch (itemProto->Class)
-    {
-    case ITEM_CLASS_CONSUMABLE:     classPriceMultiplier = PriceMultiplierCategoryConsumable; break;
-    case ITEM_CLASS_CONTAINER:      classPriceMultiplier = PriceMultiplierCategoryContainer; break;
-    case ITEM_CLASS_WEAPON:         classPriceMultiplier = PriceMultiplierCategoryWeapon; break;
-    case ITEM_CLASS_GEM:            classPriceMultiplier = PriceMultiplierCategoryGem; break;
-    case ITEM_CLASS_REAGENT:        classPriceMultiplier = PriceMultiplierCategoryReagent; break;
-    case ITEM_CLASS_ARMOR:          classPriceMultiplier = PriceMultiplierCategoryArmor; break;
-    case ITEM_CLASS_PROJECTILE:     classPriceMultiplier = PriceMultiplierCategoryProjectile; break;
-    case ITEM_CLASS_TRADE_GOODS:    classPriceMultiplier = PriceMultiplierCategoryTradeGood; break;
-    case ITEM_CLASS_GENERIC:        classPriceMultiplier = PriceMultiplierCategoryGeneric; break;
-    case ITEM_CLASS_RECIPE:         classPriceMultiplier = PriceMultiplierCategoryRecipe; break;
-    case ITEM_CLASS_QUIVER:         classPriceMultiplier = PriceMultiplierCategoryQuiver; break;
-    case ITEM_CLASS_QUEST:          classPriceMultiplier = PriceMultiplierCategoryQuest; break;
-    case ITEM_CLASS_KEY:            classPriceMultiplier = PriceMultiplierCategoryKey; break;
-    case ITEM_CLASS_MISC:           classPriceMultiplier = PriceMultiplierCategoryMisc; break;
-    case ITEM_CLASS_GLYPH:          classPriceMultiplier = PriceMultiplierCategoryGlyph; break;
-    default:                        break;
-    }
-
-    float tradeGoodsSubClassPriceMultiplier = 1;
-    if (itemProto->Class == ITEM_CLASS_TRADE_GOODS)
-    {
-        switch (itemProto->SubClass)
-        {
-        case ITEM_SUBCLASS_TRADE_GOODS:             tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodTradeGoods; break;
-        case ITEM_SUBCLASS_PARTS:                   tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodParts; break;
-        case ITEM_SUBCLASS_EXPLOSIVES:              tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodExplosives; break;
-        case ITEM_SUBCLASS_DEVICES:                 tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodDevices; break;
-        case ITEM_SUBCLASS_JEWELCRAFTING:           tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodJewelcrafting; break;
-        case ITEM_SUBCLASS_CLOTH:                   tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodCloth; break;
-        case ITEM_SUBCLASS_LEATHER:                 tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodLeather; break;
-        case ITEM_SUBCLASS_METAL_STONE:             tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMetalStone; break;
-        case ITEM_SUBCLASS_MEAT:                    tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMeat; break;
-        case ITEM_SUBCLASS_HERB:                    tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodHerb; break;
-        case ITEM_SUBCLASS_ELEMENTAL:               tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodElemental; break;
-        case ITEM_SUBCLASS_TRADE_GOODS_OTHER:       tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodOther; break;
-        case ITEM_SUBCLASS_ENCHANTING:              tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodEnchanting; break;
-        case ITEM_SUBCLASS_MATERIAL:                tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodMaterial; break;
-        case ITEM_SUBCLASS_ARMOR_ENCHANTMENT:       tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodArmorEnhancement; break;
-        case ITEM_SUBCLASS_WEAPON_ENCHANTMENT:      tradeGoodsSubClassPriceMultiplier = PriceMultiplierCategoryTradeGoodWeaponEnhancement; break;
-        default:                                    break;
-        }
-    }
-
-    float qualityPriceMultplier = 1;
-    switch (itemProto->Quality)
-    {
-    case ITEM_QUALITY_POOR:         qualityPriceMultplier = PriceMultiplierQualityPoor; break;
-    case ITEM_QUALITY_NORMAL:       qualityPriceMultplier = PriceMultiplierQualityNormal; break;
-    case ITEM_QUALITY_UNCOMMON:     qualityPriceMultplier = PriceMultiplierQualityUncommon; break;
-    case ITEM_QUALITY_RARE:         qualityPriceMultplier = PriceMultiplierQualityRare; break;
-    case ITEM_QUALITY_EPIC:         qualityPriceMultplier = PriceMultiplierQualityEpic; break;
-    case ITEM_QUALITY_LEGENDARY:    qualityPriceMultplier = PriceMultiplierQualityLegendary; break;
-    case ITEM_QUALITY_ARTIFACT:     qualityPriceMultplier = PriceMultiplierQualityArtifact; break;
-    case ITEM_QUALITY_HEIRLOOM:     qualityPriceMultplier = PriceMultiplierQualityHeirloom; break;
-    default: break;
-    }
-
-    // Grab the minimum prices
-    uint64 PriceMinimumCenterBase = 1000;
-    auto it = PriceMinimumCenterBaseOverridesByItemID.find(itemProto->ItemId);
-    if (it != PriceMinimumCenterBaseOverridesByItemID.end())
-        PriceMinimumCenterBase = it->second;
-    else
-    {
-        switch (itemProto->Class)
-        {
-        case ITEM_CLASS_CONSUMABLE:     PriceMinimumCenterBase = PriceMinimumCenterBaseConsumable; break;
-        case ITEM_CLASS_CONTAINER:      PriceMinimumCenterBase = PriceMinimumCenterBaseContainer; break;
-        case ITEM_CLASS_WEAPON:         PriceMinimumCenterBase = PriceMinimumCenterBaseWeapon; break;
-        case ITEM_CLASS_GEM:            PriceMinimumCenterBase = PriceMinimumCenterBaseGem; break;
-        case ITEM_CLASS_REAGENT:        PriceMinimumCenterBase = PriceMinimumCenterBaseReagent; break;
-        case ITEM_CLASS_ARMOR:          PriceMinimumCenterBase = PriceMinimumCenterBaseArmor; break;
-        case ITEM_CLASS_PROJECTILE:     PriceMinimumCenterBase = PriceMinimumCenterBaseProjectile; break;
-        case ITEM_CLASS_TRADE_GOODS:    PriceMinimumCenterBase = PriceMinimumCenterBaseTradeGood; break;
-        case ITEM_CLASS_GENERIC:        PriceMinimumCenterBase = PriceMinimumCenterBaseGeneric; break;
-        case ITEM_CLASS_RECIPE:         PriceMinimumCenterBase = PriceMinimumCenterBaseRecipe; break;
-        case ITEM_CLASS_QUIVER:         PriceMinimumCenterBase = PriceMinimumCenterBaseQuiver; break;
-        case ITEM_CLASS_QUEST:          PriceMinimumCenterBase = PriceMinimumCenterBaseQuest; break;
-        case ITEM_CLASS_KEY:            PriceMinimumCenterBase = PriceMinimumCenterBaseKey; break;
-        case ITEM_CLASS_MISC:           PriceMinimumCenterBase = PriceMinimumCenterBaseMisc; break;
-        case ITEM_CLASS_GLYPH:          PriceMinimumCenterBase = PriceMinimumCenterBaseGlyph; break;
-        default:                        break;
-        }
-    }
     
     // Set the minimum price
-    if (outBuyoutPrice < PriceMinimumCenterBase)
-        outBuyoutPrice = PriceMinimumCenterBase;
+    if (outBuyoutPrice < priceMultipliers.PriceMinimumCenterBase)
+        outBuyoutPrice = priceMultipliers.PriceMinimumCenterBase;
 
     // Multiply the price based on multipliers
-    outBuyoutPrice *= qualityPriceMultplier;
-    outBuyoutPrice *= classPriceMultiplier;
-    outBuyoutPrice *= tradeGoodsSubClassPriceMultiplier;
+    outBuyoutPrice *= priceMultipliers.qualityPriceMultplier;
+    outBuyoutPrice *= priceMultipliers.classPriceMultiplier;
+    outBuyoutPrice *= priceMultipliers.tradeGoodsSubClassPriceMultiplier;
 
     // Apply item level multiplier
     if (ItemLevelPriceMultiplier > 0.0f && itemProto->ItemLevel > 0)
