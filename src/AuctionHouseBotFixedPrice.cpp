@@ -34,8 +34,8 @@
 
 using namespace std;
 
-// TODO this should all be moved to config file
-static const float DEFAULT_VARIANCE_TOP_PERCENT = 1.20;
+// ensure final price stay close enough to the "fixed" price
+static const float DEFAULT_VARIANCE_TOP_PERCENT = 1.15;
 static const float DEFAULT_VARIANCE_BOTTOM_PERCENT = 0.95;
 
 FixedPriceResult getFixedPriceIfApplicable (
