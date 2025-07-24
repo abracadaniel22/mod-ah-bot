@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# The purpose of this file is to the base SQL files and any new SQL files after module updates.
+
+#
+# BASE
+#
+
+DB_WORLD_CUSTOM_PATHS+=(
+	"$MOD_AHBOT_ROOT/data/sql/world/base/"
+)
+
+#
+# UPDATES
+#
+
+DB_WORLD_UPDATE_PATHS+=(
+	"$MOD_AHBOT_ROOT/data/sql/world/updates/"
+)

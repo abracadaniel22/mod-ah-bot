@@ -32,6 +32,8 @@
 #include <unordered_map>
 #include "Tokenize.h"
 #include "StringConvert.h"
+#include "DatabaseEnv.h"
+#include "QueryResult.h"
 
 using namespace std;
 
@@ -87,6 +89,17 @@ uint32 AuctionHouseBot::getStackSizeForItem(ItemTemplate const* itemProto) const
         return urand(1, itemProto->GetMaxStackSize());
     else
         return 1;
+}
+
+uint64 AuctionHouseBot::getItemValueFromDb(ItemTemplate const* itemProto)
+{
+    uint64 minBidPrice = 0;
+    QueryResult result = WorldDatabase.Query("SELECT min_bid_price FROM mod_ahbot WHERE item_id = {}", itemProto->ItemId);
+    if (result)
+    {
+        minBidPrice = result->Fetch()->Get<uint64>();
+    }
+    return minBidPrice;
 }
 
 PriceMultipliers AuctionHouseBot::getPriceMultipliers(ItemTemplate const* itemProto)
@@ -182,7 +195,7 @@ PriceMultipliers AuctionHouseBot::getPriceMultipliers(ItemTemplate const* itemPr
     return {classPriceMultiplier, tradeGoodsSubClassPriceMultiplier, qualityPriceMultplier, PriceMinimumCenterBase};
 }
 
-void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
+void AuctionHouseBot::computeItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
 {
     PriceMultipliers priceMultipliers = getPriceMultipliers(itemProto);
 
@@ -248,12 +261,35 @@ void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& 
     }
 }
 
+void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
+{
+    uint64 minBidPrice = getItemValueFromDb(itemProto);
+    if (minBidPrice > 0)
+    {
+        outBidPrice = minBidPrice;
+
+        float sellVarianceBuyoutPriceTopPercent = 1.10;  // buyout can go up to 10% bid
+        outBuyoutPrice = urand(minBidPrice, sellVarianceBuyoutPriceTopPercent * minBidPrice);
+    }
+    else
+    {
+        computeItemValue(itemProto, outBidPrice, outBuyoutPrice);
+    }
+}
+
 /**
  * Returns the minimum guarantee price the buyer bot would be willing to pay.
  * This is a deterministic algorithm.
  */
 void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice)
 {
+    uint64 minBidPrice = getItemValueFromDb(itemProto);
+    if (minBidPrice > 0)
+    {
+        outBuyoutPrice = minBidPrice;
+        return;
+    }
+
     PriceMultipliers priceMultipliers = getPriceMultipliers(itemProto);
 
     // Start with a buyout price related to the sell price
@@ -298,18 +334,13 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
 }
 
 /**
- * This applies upper bound randomness to the amount the buyer is willing to buy, on
- * top of the minimum amount calculated by calculateMinimumItemValueForBuyer
+ * The buyer may be willing to pay a little over the minimum amount, calculated by calculateMinimumItemValueForBuyer
  */
 void AuctionHouseBot::calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice)
 {
     calculateMinimumItemValueForBuyer(itemProto, outBuyoutPrice);
     // Set the minimum price
     outBuyoutPrice = urand(outBuyoutPrice, outBuyoutPrice * 1.25);
-
-    // Calculate buyout price with a variance
-    float sellVarianceBuyoutPriceTopPercent = 1.30;
-    outBuyoutPrice = urand(outBuyoutPrice, sellVarianceBuyoutPriceTopPercent * outBuyoutPrice);
 }
 
 void AuctionHouseBot::populatetemClassSeedListForItemClass(uint32 itemClass, uint32 itemClassSeedWeight)
