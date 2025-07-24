@@ -30,6 +30,8 @@
 #include <set>
 #include "AuctionHouseBotFixedPrice.h"
 #include <unordered_map>
+#include "Tokenize.h"
+#include "StringConvert.h"
 
 using namespace std;
 
@@ -1030,13 +1032,26 @@ void AuctionHouseBot::InitializeConfiguration()
     PriceMinimumCenterBaseGlyph = sConfigMgr->GetOption<uint32>("AuctionHouseBot.PriceMinimumCenterBase.Glyph", 1000);
     AddPriceMinimumOverrides(sConfigMgr->GetOption<std::string>("AuctionHouseBot.PriceMinimumCenterBase.OverrideItems", ""));
 
-    std::vector<string> keys = sConfigMgr->GetKeysByString("AuctionHouseBot.FixedPrices.");
+    std::vector<string> keys = sConfigMgr->GetKeysByString("AuctionHouseBot.FixedPrice");
     for (string const& key : keys)
     {
-        string itemIdStr = key.substr(28);
-        uint32 const& itemId = static_cast<uint32>(std::stoul(itemIdStr));
-        float price = sConfigMgr->GetOption<float>(key, 1);
+        //string itemIdStr = key.substr(27);
+        string valueStr = sConfigMgr->GetOption<string>(key, "");
+        //uint32 const& itemId = static_cast<uint32>(std::stoul(itemIdStr));
+        std::vector<std::string_view> valParts = Acore::Tokenize(valueStr, ':', false);
+        // uint32 const& itemId = static_cast<uint32>(std::stoul(valParts[0]));
+        auto itemId = Acore::StringTo<uint32>(valParts[0]).value();
+        //float price = std::stof(valParts[1]);
+        float price = Acore::StringTo<float>(valParts[1]).value();
+
+        // for (auto& itr : Acore::Tokenize(value, ':', false))
+        // {
+        //     plusDataMap[PLUS_FEATURE_GREY_ITEMS].push_back(Acore::StringTo<uint32>(itr).value());
+        // }
+        // float price = sConfigMgr->GetOption<float>(key, 1);
         fixedPrices.insert({itemId, price});
+        if (debug_Out)
+            LOG_INFO("module", "AHBot: Fixed price for {} = {}", itemId, price);
     }
 
     // Disabled Items
