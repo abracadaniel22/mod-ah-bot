@@ -299,6 +299,12 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     if (outBuyoutPrice < priceMultipliers.PriceMinimumCenterBase)
         outBuyoutPrice = priceMultipliers.PriceMinimumCenterBase;
 
+    // Do not add multipliers if buyer is to use only db values, and db value doesn't exist for this item
+    if (BuyerEnableUseOnlyDbPrices)
+    {
+        return;
+    }
+
     // Multiply the price based on multipliers
     outBuyoutPrice *= priceMultipliers.qualityPriceMultplier;
     outBuyoutPrice *= priceMultipliers.classPriceMultiplier;
@@ -339,8 +345,12 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
 void AuctionHouseBot::calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice)
 {
     calculateMinimumItemValueForBuyer(itemProto, outBuyoutPrice);
-    // Set the minimum price
-    outBuyoutPrice = urand(outBuyoutPrice, outBuyoutPrice * 1.25);
+    // Do not add multipliers if buyer is to use only db values
+    if (!BuyerEnableUseOnlyDbPrices)
+    {
+        // Set the minimum price
+        outBuyoutPrice = urand(outBuyoutPrice, outBuyoutPrice * 1.25);
+    }
 }
 
 void AuctionHouseBot::populatetemClassSeedListForItemClass(uint32 itemClass, uint32 itemClassSeedWeight)
@@ -982,6 +992,8 @@ void AuctionHouseBot::InitializeConfiguration()
     RandomStackRatioKey = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Key", 10);
     RandomStackRatioMisc = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Misc", 100);
     RandomStackRatioGlyph = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Glyph", 0);
+
+    BuyerEnableUseOnlyDbPrices = sConfigMgr->GetOption<bool>("AuctionHouseBot.Buyer.EnableUseOnlyDbPrices", false);
 
     // List Proportions
     ListProportionConsumable = sConfigMgr->GetOption<uint32>("AuctionHouseBot.ListProportion.Consumable", 2);

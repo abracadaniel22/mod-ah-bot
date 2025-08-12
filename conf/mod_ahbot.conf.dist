@@ -130,6 +130,18 @@ AuctionHouseBot.ListProportion.Misc = 0
 AuctionHouseBot.ListProportion.Glyph = 2
 
 ###############################################################################
+#    AuctionHouseBot.Buyer.EnableUseOnlyDbPrices
+#        If true, the buyer will check for prices in the mod_ahbot table. If not found,
+#        the buyer will not pay more than the selling price for the item (or the 
+#        PriceMinimumCenterBase if the item has no selling price). In other words, the buyer
+#        ignores all the multiplier settings and only cares about the prices in the table.
+#        If false, the buyer will check for prices in the mod_ahbot table, but it not found,
+#        the buyer will then calculate the price based on the standard logic also used by seller.
+#    Default: false
+###############################################################################
+AuctionHouseBot.Buyer.EnableUseOnlyDbPrices = false
+
+###############################################################################
 #    AuctionHouseBot.PriceMinimumCenterBase.*
 #        Category-level price minimums, in copper, before any multipliers come
 #        into play.  Value shouldn't be zero, and the base minimum price will

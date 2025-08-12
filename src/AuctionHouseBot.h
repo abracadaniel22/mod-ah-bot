@@ -176,6 +176,7 @@ private:
     uint32 RandomStackRatioKey;
     uint32 RandomStackRatioMisc;
     uint32 RandomStackRatioGlyph;
+    bool BuyerEnableUseOnlyDbPrices;
     std::vector<uint32> itemCandidateClassWeightedProportionList;
     std::map<uint32, std::vector<uint32>> itemCandidatesByItemClass;
     uint32 ListProportionConsumable;
