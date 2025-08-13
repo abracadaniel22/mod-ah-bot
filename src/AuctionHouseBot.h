@@ -138,8 +138,6 @@ struct PriceMultipliers
     uint64 PriceMinimumCenterBase;
 };
 
-enum class UseDatabasePricesOptions { YES, NO, EXCLUSIVE };
-
 class AuctionHouseBot
 {
 public:
@@ -234,7 +232,8 @@ private:
     uint32 PriceMinimumCenterBaseGlyph;
     std::unordered_map<uint32, uint64> PriceMinimumCenterBaseOverridesByItemID;
     float ItemLevelPriceMultiplier;
-    UseDatabasePricesOptions buyerUseDbPrices;
+    bool UseDatabasePrices;
+    bool BuyerUseDbPricesExclusively;
 
 
     AHBConfig AllianceConfig;
@@ -250,7 +249,7 @@ private:
     PriceMultipliers getPriceMultipliers(ItemTemplate const* itemProto);
     void computeItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice);
     uint64 getItemValueFromDb(ItemTemplate const* itemProto);
-    void calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice);
+    void calculateItemValueForSeller(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice);
     void calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice);
     void populatetemClassSeedListForItemClass(uint32 itemClass, uint32 itemClassSeedWeight);
     void populateItemClassProportionList();

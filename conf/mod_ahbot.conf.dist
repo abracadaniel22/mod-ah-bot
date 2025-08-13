@@ -130,21 +130,29 @@ AuctionHouseBot.ListProportion.Misc = 0
 AuctionHouseBot.ListProportion.Glyph = 2
 
 ###############################################################################
-#    AuctionHouseBot.Buyer.UseDatabasePrices
-#        Controls whether the buyer bot will check for item value in the mod_ahbot table.
-#    Possible values:
-#              YES: The buyer will check for item value in the mod_ahbot table. If the item is
-#                   not found in the table, the buyer will then apply the regular algorithm to
-#                   calculate the value, making use of multipliers and other settings.
-#               NO: The buyer will not check for item value in the mod_ahbot table.
-#        EXCLUSIVE: The buyer will check for item value in the mod_ahbot table and nothing else.
-#                   So if the item is not found in the table, the buyer will not pay more than 
-#                   the selling price for the item (or the PriceMinimumCenterBase if the item 
-#                   has no selling price). In other words, the buyer ignores all the multiplier 
-#                   settings and only cares about prices in the table.
-#    Default: YES
+#    AuctionHouseBot.DatabasePrices.Enabled
+#        Controls whether the buyer and seller bots will check for item values in the mod_ahbot table.
+#        When true, the bots will check for item value in the mod_ahbot table. If the item is
+#            not found in the table, the regular algorithm will be applied to calculate the 
+#            value making use of the multipliers and other settings.
+#        When false, the bots will not check for item value in the mod_ahbot table and will rely
+#            on the standard algorithm to calculate prices.
+#    Default: true
+#
+#    AuctionHouseBot.DatabasePrices.BuyerUseDbPricesExclusively
+#        When true, the buyer check for item value in the mod_ahbot table and nothing else.
+#            So if the item is not found in the table, the buyer will not pay more than 
+#            the selling price for the item (or the PriceMinimumCenterBase if the item 
+#            has no selling price). In other words, the buyer ignores all the multiplier 
+#            settings and only cares about prices in the table.
+#        This setting has no effect if AuctionHouseBot.DatabasePrices.Enabled is false.
+#        This setting only applies to the buyer. The seller can use database prices when
+#            AuctionHouseBot.DatabasePrices.Enabled is true, but if the item is not found, the seller
+#            will default to the standard algorithms when placing items in the auction house.
+#    Default: false
 ###############################################################################
-AuctionHouseBot.Buyer.UseDatabasePrices = YES
+AuctionHouseBot.DatabasePrices.Enabled = true
+AuctionHouseBot.DatabasePrices.BuyerUseDbPricesExclusively = false
 
 ###############################################################################
 #    AuctionHouseBot.PriceMinimumCenterBase.*

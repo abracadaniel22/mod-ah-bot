@@ -90,7 +90,7 @@ uint32 AuctionHouseBot::getStackSizeForItem(ItemTemplate const* itemProto) const
 uint64 AuctionHouseBot::getItemValueFromDb(ItemTemplate const* itemProto)
 {
     uint64 minBidPrice = 0;
-    if (buyerUseDbPrices == UseDatabasePricesOptions::YES || buyerUseDbPrices == UseDatabasePricesOptions::EXCLUSIVE)
+    if (UseDatabasePrices)
     {
         QueryResult result = WorldDatabase.Query("SELECT min_bid_price FROM mod_ahbot WHERE item_id = {}", itemProto->ItemId);
         if (result)
@@ -220,18 +220,22 @@ void AuctionHouseBot::computeItemValue(ItemTemplate const* itemProto, uint64& ou
     }
 }
 
-void AuctionHouseBot::calculateItemValue(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
+void AuctionHouseBot::calculateItemValueForSeller(ItemTemplate const* itemProto, uint64& outBidPrice, uint64& outBuyoutPrice)
 {
     uint64 minBidPrice = getItemValueFromDb(itemProto);
     if (minBidPrice > 0)
     {
+        // db value lookup is enabled and item price found in db
         outBidPrice = minBidPrice;
-
-        float sellVarianceBuyoutPriceTopPercent = 1.10;  // buyout can go up to 10% bid
+        
+        // buyout may go up to 10% bid
+        float sellVarianceBuyoutPriceTopPercent = 1.10;
         outBuyoutPrice = urand(minBidPrice, sellVarianceBuyoutPriceTopPercent * minBidPrice);
     }
     else
     {
+        // db value lookup is disabled, or enabled but item price not found in db
+        // proceed with standard algorithm
         computeItemValue(itemProto, outBidPrice, outBuyoutPrice);
     }
 }
@@ -259,7 +263,7 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
         outBuyoutPrice = priceMultipliers.PriceMinimumCenterBase;
 
     // Do not add additional multipliers if buyer is to use only db values, and db value doesn't exist for this item
-    if (buyerUseDbPrices == UseDatabasePricesOptions::EXCLUSIVE)
+    if (UseDatabasePrices && BuyerUseDbPricesExclusively)
     {
         return;
     }
@@ -292,7 +296,7 @@ void AuctionHouseBot::calculateItemValueForBuyer(ItemTemplate const* itemProto, 
 {
     calculateMinimumItemValueForBuyer(itemProto, outBuyoutPrice);
     // Only add multipliers if buyer isn't setup to only use db
-    if (buyerUseDbPrices != UseDatabasePricesOptions::EXCLUSIVE)
+    if (UseDatabasePrices && !BuyerUseDbPricesExclusively)
     {
         // Set the minimum price
         outBuyoutPrice = urand(outBuyoutPrice, outBuyoutPrice * 1.25);
@@ -641,7 +645,7 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         // Determine price
         uint64 buyoutPrice = 0;
         uint64 bidPrice = 0;
-        calculateItemValue(prototype, bidPrice, buyoutPrice);
+        calculateItemValueForSeller(prototype, bidPrice, buyoutPrice);
 
         // Define a duration
         uint32 etime = urand(900, 43200);
@@ -938,34 +942,12 @@ void AuctionHouseBot::InitializeConfiguration()
     RandomStackRatioKey = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Key", 10);
     RandomStackRatioMisc = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Misc", 100);
     RandomStackRatioGlyph = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Glyph", 0);
-
-    string useDbPricesStr = sConfigMgr->GetOption<std::string>("AuctionHouseBot.Buyer.UseDatabasePrices", "");
-    if (AHBBuyer)
+    UseDatabasePrices = sConfigMgr->GetOption<bool>("AuctionHouseBot.DatabasePrices.Enabled", false);
+    BuyerUseDbPricesExclusively = sConfigMgr->GetOption<bool>("AuctionHouseBot.DatabasePrices.BuyerUseDbPricesExclusively", false);
+    if (AHBBuyer && UseDatabasePrices)
     {
-        if (useDbPricesStr == "YES")
-        {
-            buyerUseDbPrices = UseDatabasePricesOptions::YES;
-        } 
-        else if (useDbPricesStr == "NO") 
-        {
-            buyerUseDbPrices = UseDatabasePricesOptions::NO;
-        }
-        else if (useDbPricesStr == "EXCLUSIVE") 
-        {
-            buyerUseDbPrices = UseDatabasePricesOptions::EXCLUSIVE;
-        }
-        else
-        {
-            LOG_ERROR("server.loading", "AuctionHouseBot: Invalid value '{}' for AuctionHouseBot.Buyer.UseDatabasePrices. "
-                "It must be 'YES', 'NO', or 'EXCLUSIVE'. Check your configuration.", useDbPricesStr);
-            std::terminate();
-        }
-        if (debug_Out && buyerUseDbPrices != UseDatabasePricesOptions::NO)
-            LOG_INFO("module", "AuctionHouseBot: Buyer will use database prices {}", (buyerUseDbPrices == UseDatabasePricesOptions::EXCLUSIVE) ? "exclusively" : "");
-    }
-    else
-    {
-        buyerUseDbPrices = UseDatabasePricesOptions::NO;
+        if (debug_Out)
+            LOG_INFO("module", "AuctionHouseBot: Using database prices for buyer and seller {}", (BuyerUseDbPricesExclusively) ? "(buyer will only use db prices)" : "");
     }
 
     // List Proportions

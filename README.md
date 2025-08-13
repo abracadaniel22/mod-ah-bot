@@ -1,3 +1,25 @@
+# About this fork
+This is a fork of NathanHandley/mod-ah-bot (which in turn is a fork of the original AHBot) that adds two main features:
+
+## Client addons can query the minimum price the buyer bot is willing to pay for an item
+
+The command `.ahbot buyeritemvalue <itemid>` can be used to anticipate how much the buyer is guaranteed to bid. The buyer may bid _more_ than that amount because the algorithm adds variances and multipliers.
+
+This feature can be paired with the [AHBot Tooltip](https://github.com/abracadaniel22/AHBotTooltip) addon. The addon updates the item tooltips by adding the minimum amount the buyer is guaranteed to bid, allowing the player to setup their auctions much easier.
+
+## Ability to set a minimum fixed bid price for items in the database
+
+A new `acore_world.mod_ahbot` table is added that allows setting minimum price for items, before any variance is calculated. This allows admins to load up the database with real world or custom values when they are not satisfied with the standard multipliers and algorithms for certain items.
+
+This feature can be paired with the [AHBot Price Updater](https://github.com/abracadaniel22/ahbot-price-updater) app, which can run periodically to download and parse auctioneer data files and populate the table with real world data.
+
+This feature can be tweaked with two new settings:
+
+- `AuctionHouseBot.DatabasePrices.Enabled`: can be used to toggle checking prices from the DB table for both buyer and seller.
+- `AuctionHouseBot.DatabasePrices.BuyerUseDbPricesExclusively`: can set the buyer to only check prices in DB table, and use sell price otherwise. This can help if the buyer is defaulting to too high or too low prices when an item price is not saved in the db table.
+
+# Original readme:
+
 ## Description
 
 A fork of the auction house bot for AzerothCore.  This fork gives a much more blizzlike experience in the offerings on the auction house.  Most notable differences:
