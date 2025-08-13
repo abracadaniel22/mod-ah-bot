@@ -134,7 +134,6 @@ public:
 struct PriceMultipliers 
 {
     float classPriceMultiplier;
-    float tradeGoodsSubClassPriceMultiplier;
     float qualityPriceMultplier;
     uint64 PriceMinimumCenterBase;
 };
@@ -203,23 +202,6 @@ private:
     float PriceMultiplierCategoryProjectile;
     float PriceMultiplierCategoryTradeGood;
 
-    float PriceMultiplierCategoryTradeGoodTradeGoods;
-    float PriceMultiplierCategoryTradeGoodParts;
-    float PriceMultiplierCategoryTradeGoodExplosives;
-    float PriceMultiplierCategoryTradeGoodDevices;
-    float PriceMultiplierCategoryTradeGoodJewelcrafting;
-    float PriceMultiplierCategoryTradeGoodCloth;
-    float PriceMultiplierCategoryTradeGoodLeather;
-    float PriceMultiplierCategoryTradeGoodMetalStone;
-    float PriceMultiplierCategoryTradeGoodMeat;
-    float PriceMultiplierCategoryTradeGoodHerb;
-    float PriceMultiplierCategoryTradeGoodElemental;
-    float PriceMultiplierCategoryTradeGoodOther;
-    float PriceMultiplierCategoryTradeGoodEnchanting;
-    float PriceMultiplierCategoryTradeGoodMaterial;
-    float PriceMultiplierCategoryTradeGoodArmorEnhancement;
-    float PriceMultiplierCategoryTradeGoodWeaponEnhancement;
-
     float PriceMultiplierCategoryGeneric;
     float PriceMultiplierCategoryRecipe;
     float PriceMultiplierCategoryQuiver;
@@ -235,7 +217,6 @@ private:
     float PriceMultiplierQualityLegendary;
     float PriceMultiplierQualityArtifact;
     float PriceMultiplierQualityHeirloom;
-    std::unordered_map<uint32, float> fixedPrices;
 
     uint32 PriceMinimumCenterBaseConsumable;
     uint32 PriceMinimumCenterBaseContainer;
