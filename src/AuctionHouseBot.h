@@ -138,6 +138,8 @@ struct PriceMultipliers
     uint64 PriceMinimumCenterBase;
 };
 
+enum class UseDatabasePricesOptions { YES, NO, EXCLUSIVE };
+
 class AuctionHouseBot
 {
 public:
@@ -175,7 +177,6 @@ private:
     uint32 RandomStackRatioKey;
     uint32 RandomStackRatioMisc;
     uint32 RandomStackRatioGlyph;
-    bool BuyerEnableUseOnlyDbPrices;
     std::vector<uint32> itemCandidateClassWeightedProportionList;
     std::map<uint32, std::vector<uint32>> itemCandidatesByItemClass;
     uint32 ListProportionConsumable;
@@ -201,7 +202,6 @@ private:
     float PriceMultiplierCategoryReagent;
     float PriceMultiplierCategoryProjectile;
     float PriceMultiplierCategoryTradeGood;
-
     float PriceMultiplierCategoryGeneric;
     float PriceMultiplierCategoryRecipe;
     float PriceMultiplierCategoryQuiver;
@@ -217,7 +217,6 @@ private:
     float PriceMultiplierQualityLegendary;
     float PriceMultiplierQualityArtifact;
     float PriceMultiplierQualityHeirloom;
-
     uint32 PriceMinimumCenterBaseConsumable;
     uint32 PriceMinimumCenterBaseContainer;
     uint32 PriceMinimumCenterBaseWeapon;
@@ -235,6 +234,7 @@ private:
     uint32 PriceMinimumCenterBaseGlyph;
     std::unordered_map<uint32, uint64> PriceMinimumCenterBaseOverridesByItemID;
     float ItemLevelPriceMultiplier;
+    UseDatabasePricesOptions buyerUseDbPrices;
 
 
     AHBConfig AllianceConfig;

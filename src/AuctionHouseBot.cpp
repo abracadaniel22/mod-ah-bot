@@ -90,10 +90,13 @@ uint32 AuctionHouseBot::getStackSizeForItem(ItemTemplate const* itemProto) const
 uint64 AuctionHouseBot::getItemValueFromDb(ItemTemplate const* itemProto)
 {
     uint64 minBidPrice = 0;
-    QueryResult result = WorldDatabase.Query("SELECT min_bid_price FROM mod_ahbot WHERE item_id = {}", itemProto->ItemId);
-    if (result)
+    if (buyerUseDbPrices == UseDatabasePricesOptions::YES || buyerUseDbPrices == UseDatabasePricesOptions::EXCLUSIVE)
     {
-        minBidPrice = result->Fetch()->Get<uint64>();
+        QueryResult result = WorldDatabase.Query("SELECT min_bid_price FROM mod_ahbot WHERE item_id = {}", itemProto->ItemId);
+        if (result)
+        {
+            minBidPrice = result->Fetch()->Get<uint64>();
+        }
     }
     return minBidPrice;
 }
@@ -196,7 +199,6 @@ void AuctionHouseBot::computeItemValue(ItemTemplate const* itemProto, uint64& ou
     // Calculate buyout price with a variance
     float sellVarianceBuyoutPriceTopPercent = 1.30;
     float sellVarianceBuyoutPriceBottomPercent = 0.70;
-
     outBuyoutPrice = urand(sellVarianceBuyoutPriceBottomPercent * outBuyoutPrice, sellVarianceBuyoutPriceTopPercent * outBuyoutPrice);
 
     // Calculate a bid price based on a variance against buyout price
@@ -256,8 +258,8 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     if (outBuyoutPrice < priceMultipliers.PriceMinimumCenterBase)
         outBuyoutPrice = priceMultipliers.PriceMinimumCenterBase;
 
-    // Do not add multipliers if buyer is to use only db values, and db value doesn't exist for this item
-    if (BuyerEnableUseOnlyDbPrices)
+    // Do not add additional multipliers if buyer is to use only db values, and db value doesn't exist for this item
+    if (buyerUseDbPrices == UseDatabasePricesOptions::EXCLUSIVE)
     {
         return;
     }
@@ -289,8 +291,8 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
 void AuctionHouseBot::calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice)
 {
     calculateMinimumItemValueForBuyer(itemProto, outBuyoutPrice);
-    // Do not add multipliers if buyer is to use only db values
-    if (!BuyerEnableUseOnlyDbPrices)
+    // Only add multipliers if buyer isn't setup to only use db
+    if (buyerUseDbPrices != UseDatabasePricesOptions::EXCLUSIVE)
     {
         // Set the minimum price
         outBuyoutPrice = urand(outBuyoutPrice, outBuyoutPrice * 1.25);
@@ -937,7 +939,34 @@ void AuctionHouseBot::InitializeConfiguration()
     RandomStackRatioMisc = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Misc", 100);
     RandomStackRatioGlyph = GetRandomStackValue("AuctionHouseBot.RandomStackRatio.Glyph", 0);
 
-    BuyerEnableUseOnlyDbPrices = sConfigMgr->GetOption<bool>("AuctionHouseBot.Buyer.EnableUseOnlyDbPrices", false);
+    string useDbPricesStr = sConfigMgr->GetOption<std::string>("AuctionHouseBot.Buyer.UseDatabasePrices", "");
+    if (AHBBuyer)
+    {
+        if (useDbPricesStr == "YES")
+        {
+            buyerUseDbPrices = UseDatabasePricesOptions::YES;
+        } 
+        else if (useDbPricesStr == "NO") 
+        {
+            buyerUseDbPrices = UseDatabasePricesOptions::NO;
+        }
+        else if (useDbPricesStr == "EXCLUSIVE") 
+        {
+            buyerUseDbPrices = UseDatabasePricesOptions::EXCLUSIVE;
+        }
+        else
+        {
+            LOG_ERROR("server.loading", "AuctionHouseBot: Invalid value '{}' for AuctionHouseBot.Buyer.UseDatabasePrices. "
+                "It must be 'YES', 'NO', or 'EXCLUSIVE'. Check your configuration.", useDbPricesStr);
+            std::terminate();
+        }
+        if (debug_Out && buyerUseDbPrices != UseDatabasePricesOptions::NO)
+            LOG_INFO("module", "AuctionHouseBot: Buyer will use database prices {}", (buyerUseDbPrices == UseDatabasePricesOptions::EXCLUSIVE) ? "exclusively" : "");
+    }
+    else
+    {
+        buyerUseDbPrices = UseDatabasePricesOptions::NO;
+    }
 
     // List Proportions
     ListProportionConsumable = sConfigMgr->GetOption<uint32>("AuctionHouseBot.ListProportion.Consumable", 2);
@@ -965,7 +994,6 @@ void AuctionHouseBot::InitializeConfiguration()
     PriceMultiplierCategoryReagent = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Reagent", 1);
     PriceMultiplierCategoryProjectile = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Projectile", 1);
     PriceMultiplierCategoryTradeGood = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.TradeGood", 2);
-
     PriceMultiplierCategoryGeneric = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Generic", 1);
     PriceMultiplierCategoryRecipe = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Recipe", 1);
     PriceMultiplierCategoryQuiver = sConfigMgr->GetOption<float>("AuctionHouseBot.PriceMultiplier.Category.Quiver", 1);

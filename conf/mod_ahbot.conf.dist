@@ -130,16 +130,21 @@ AuctionHouseBot.ListProportion.Misc = 0
 AuctionHouseBot.ListProportion.Glyph = 2
 
 ###############################################################################
-#    AuctionHouseBot.Buyer.EnableUseOnlyDbPrices
-#        If true, the buyer will check for prices in the mod_ahbot table. If not found,
-#        the buyer will not pay more than the selling price for the item (or the 
-#        PriceMinimumCenterBase if the item has no selling price). In other words, the buyer
-#        ignores all the multiplier settings and only cares about the prices in the table.
-#        If false, the buyer will check for prices in the mod_ahbot table, but it not found,
-#        the buyer will then calculate the price based on the standard logic also used by seller.
-#    Default: false
+#    AuctionHouseBot.Buyer.UseDatabasePrices
+#        Controls whether the buyer bot will check for item value in the mod_ahbot table.
+#    Possible values:
+#              YES: The buyer will check for item value in the mod_ahbot table. If the item is
+#                   not found in the table, the buyer will then apply the regular algorithm to
+#                   calculate the value, making use of multipliers and other settings.
+#               NO: The buyer will not check for item value in the mod_ahbot table.
+#        EXCLUSIVE: The buyer will check for item value in the mod_ahbot table and nothing else.
+#                   So if the item is not found in the table, the buyer will not pay more than 
+#                   the selling price for the item (or the PriceMinimumCenterBase if the item 
+#                   has no selling price). In other words, the buyer ignores all the multiplier 
+#                   settings and only cares about prices in the table.
+#    Default: YES
 ###############################################################################
-AuctionHouseBot.Buyer.EnableUseOnlyDbPrices = false
+AuctionHouseBot.Buyer.UseDatabasePrices = YES
 
 ###############################################################################
 #    AuctionHouseBot.PriceMinimumCenterBase.*
