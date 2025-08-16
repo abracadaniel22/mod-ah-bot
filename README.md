@@ -30,6 +30,9 @@ A fork of the auction house bot for AzerothCore.  This fork gives a much more bl
 	- Empty the list to have crafted goods appear in the AH, or use other IDs you want to keep separate
  - Moved database configuration completely to config
 
+## Requirements
+Requires an AzerothCore version that is caught up to at least change set 3f46e05 (https://github.com/azerothcore/azerothcore-wotlk/commit/3f46e05d3691895b6b8a5b3832d17ecb1e210791)
+
 ## Installation
 
 ```
@@ -39,7 +42,7 @@ A fork of the auction house bot for AzerothCore.  This fork gives a much more bl
 
 ## Usage
 
-Edit the module configuration and add a character GUID ID to the "AuctionHouseBot.GUIDs" variable, which is sourced from your character table in the character database.  These names will be visable in the auction house, so pick good names.  Find the configuration as named mod_ahbot.conf.dist / mod_ahbot.conf
+Edit the module configuration and add a character GUID ID to the "AuctionHouseBot.GUIDs" variable, which is sourced from your character table in the character database.  These names will be visable in the auction house, so pick good names.  Find the configuration as named mod_ahbot.conf.dist / mod_ahbot.conf.  IMPORTANT: If you are using a bot mod (like playerbots), then ensure you use regular non-bot characters for your auctionhouse character(s)
 
 Notes:
 - These accounts do not need any security level and can be a player accounts.
