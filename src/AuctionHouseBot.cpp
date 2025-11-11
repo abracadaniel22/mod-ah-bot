@@ -658,7 +658,7 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         items = (maxItems - auctions);
 
     if (debug_Out)
-        LOG_ERROR("module", "AHSeller: House ID: {}. Current auction count: {}. Adding {} auctions", items);
+        LOG_ERROR("module", "AHSeller: House ID: {}. Current auction count: {}. Adding {} auctions", config->GetAHID(), auctions, items);
 
     // only insert a few at a time, so as not to peg the processor
     for (uint32 cnt = 1; cnt <= items; cnt++)
