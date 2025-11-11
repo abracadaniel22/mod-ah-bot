@@ -226,11 +226,23 @@ void AuctionHouseBot::calculateItemValueForSeller(ItemTemplate const* itemProto,
     if (minBidPrice > 0)
     {
         // db value lookup is enabled and item price found in db
+        constexpr uint64 MAX_MONEY_CAP = 2147483647;
+        if (minBidPrice > MAX_MONEY_CAP)
+        {
+            LOG_DEBUG("module", "Item {} [{}]: price saved in db ({}) exceeds gold cap ({}), setting it to gold cap", 
+                      itemProto->ItemId, itemProto->Name1, minBidPrice, MAX_MONEY_CAP);
+            minBidPrice = MAX_MONEY_CAP;
+        }
         outBidPrice = minBidPrice;
         
         // buyout may go up to 10% bid
         float sellVarianceBuyoutPriceTopPercent = 1.10;
-        outBuyoutPrice = urand(minBidPrice, sellVarianceBuyoutPriceTopPercent * minBidPrice);
+        uint64 maxBuyout = static_cast<uint64>(sellVarianceBuyoutPriceTopPercent * minBidPrice);
+        if (maxBuyout > MAX_MONEY_CAP)
+        {
+            maxBuyout = MAX_MONEY_CAP;
+        }
+        outBuyoutPrice = urand(minBidPrice, maxBuyout);
     }
     else
     {
