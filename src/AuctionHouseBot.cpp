@@ -494,12 +494,12 @@ void AuctionHouseBot::populateItemCandidateList()
         }
 
         // Disabled crafted gems that start with "Perfect"
-        if (itr->second.Class == ITEM_CLASS_GEM && itr->second.Name1.find("Perfect ") != std::string::npos)
-        {
-            if (debug_Out_Filters)
-                LOG_ERROR("module", "{} as it's a perfect crafted gem", formatItemDisabledLog(itr));
-            continue;
-        }
+        // if (itr->second.Class == ITEM_CLASS_GEM && itr->second.Name1.find("Perfect ") != std::string::npos)
+        // {
+        //     if (debug_Out_Filters)
+        //         LOG_ERROR("module", "{} as it's a perfect crafted gem", formatItemDisabledLog(itr));
+        //     continue;
+        // }
 
         // Disable all items that have neither a sell or a buy price, with exception of item enhancements and trade goods
         bool isEnchantingTradeGood = (itr->second.Class == ITEM_CLASS_TRADE_GOODS && itr->second.SubClass == ITEM_SUBCLASS_ENCHANTING);
