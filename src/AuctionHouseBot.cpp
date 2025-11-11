@@ -669,11 +669,15 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemID);
         if (randomPropertyId != 0)
             item->SetItemRandomProperties(randomPropertyId);
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: random property id {}", randomPropertyId);
 
         // Determine price
         uint64 buyoutPrice = 0;
         uint64 bidPrice = 0;
         calculateItemValueForSeller(prototype, bidPrice, buyoutPrice);
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: bid price: {} buyout price: {}", bidPrice, buyoutPrice);
 
         // Define a duration
         uint32 etime = urand(900, 43200);
@@ -682,7 +686,13 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         uint32 stackCount = getStackSizeForItem(prototype);
         item->SetCount(stackCount);
 
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: stack count: {}", stackCount);
+
         uint32 dep =  sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
+
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: deposit: {}", dep);
 
         auto trans = CharacterDatabase.BeginTransaction();
         AuctionEntry* auctionEntry = new AuctionEntry();
@@ -700,8 +710,14 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         auctionEntry->auctionHouseEntry = ahEntry;
         item->SaveToDB(trans);
         item->RemoveFromUpdateQueueOf(AHBplayer);
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: added item");
         sAuctionMgr->AddAItem(item);
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: added ai item");
         auctionHouse->AddAuction(auctionEntry);
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: added auction");
         auctionEntry->SaveToDB(trans);
         CharacterDatabase.CommitTransaction(trans);
         if (debug_Out)
