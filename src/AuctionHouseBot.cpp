@@ -291,6 +291,8 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     uint64 minBidPrice = getItemValueFromDb(itemProto);
     if (minBidPrice > 0)
     {
+        constexpr uint64 MAX_MONEY_CAP = 2147483647;
+        minBidPrice = std::min<uint64>(minBidPrice, MAX_MONEY_CAP);
         outBuyoutPrice = minBidPrice;
         return;
     }
@@ -301,6 +303,7 @@ void AuctionHouseBot::calculateMinimumItemValueForBuyer(ItemTemplate const* item
     outBuyoutPrice = itemProto->SellPrice;
     
     // Set the minimum price
+    //TODO ensure this won't go above gold cap
     if (outBuyoutPrice < priceMultipliers.PriceMinimumCenterBase)
         outBuyoutPrice = priceMultipliers.PriceMinimumCenterBase;
 
