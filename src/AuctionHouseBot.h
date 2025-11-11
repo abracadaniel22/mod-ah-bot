@@ -253,6 +253,7 @@ private:
     void calculateItemValueForBuyer(ItemTemplate const* itemProto, uint64& outBuyoutPrice);
     void populatetemClassSeedListForItemClass(uint32 itemClass, uint32 itemClassSeedWeight);
     void populateItemClassProportionList();
+    std::string formatItemDisabledLog(ItemTemplateContainer::const_iterator itr) const;
     void populateItemCandidateList();
     void addNewAuctions(Player* AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player* AHBplayer, AHBConfig *config);

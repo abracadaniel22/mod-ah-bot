@@ -334,6 +334,11 @@ void AuctionHouseBot::populateItemClassProportionList()
     populatetemClassSeedListForItemClass(ITEM_CLASS_GLYPH, ListProportionGlyph);
 }
 
+std::string AuctionHouseBot::formatItemDisabledLog(ItemTemplateContainer::const_iterator itr) const
+{
+    return fmt::format("AuctionHouseBot: Item {} [{}] disabled", itr->second.ItemId, itr->second.Name1);
+}
+
 void AuctionHouseBot::populateItemCandidateList()
 {
     // Clear old list and rebuild it
@@ -391,7 +396,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (DisabledItems.find(itr->second.ItemId) != DisabledItems.end())
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (PTR/Beta/Unused Item)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (PTR/Beta/Unused Item)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -405,13 +410,17 @@ void AuctionHouseBot::populateItemCandidateList()
 
         // Skip any items not in the seed list
         if (std::find(itemCandidateClassWeightedProportionList.begin(), itemCandidateClassWeightedProportionList.end(), itr->second.Class) == itemCandidateClassWeightedProportionList.end())
+        {
+            if (debug_Out_Filters)
+                LOG_ERROR("module", "AuctionHouseBot: Entire class {} disabled (not in the seed list)", itr->second.Class);
             continue;
+        }
 
         // Skip any BOP items
         if (itr->second.Bonding == BIND_WHEN_PICKED_UP || itr->second.Bonding == BIND_QUEST_ITEM)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (BOP or BQI)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (BOP or BQI)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -423,7 +432,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.IsConjuredConsumable())
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (Conjured Consumable)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (Conjured Consumable)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -431,7 +440,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Class == ITEM_CLASS_MONEY)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (Money)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (Money)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -439,7 +448,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.MinMoneyLoot > 0)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (MoneyLoot)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (MoneyLoot)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -447,7 +456,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Duration > 0)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (Has a Duration)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (Has a Duration)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -455,7 +464,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Class == ITEM_CLASS_CONTAINER && itr->second.ContainerSlots == 0)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (Container with no slots)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (Container with no slots)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -463,7 +472,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Class == ITEM_CLASS_RECIPE && itr->second.SubClass == ITEM_SUBCLASS_BOOK && itr->second.Quality <= ITEM_QUALITY_NORMAL)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled (Normal or lower recipe book)", itr->second.ItemId);
+                LOG_ERROR("module", "{} (Normal or lower recipe book)", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -480,7 +489,7 @@ void AuctionHouseBot::populateItemCandidateList()
             itr->second.Name1.find("OLD") != std::string::npos))
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled item with a temp or unused item name", itr->second.ItemId);
+                LOG_ERROR("module", "{} item with a temp or unused item name", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -488,7 +497,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Class == ITEM_CLASS_GEM && itr->second.Name1.find("Perfect ") != std::string::npos)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled as it's a perfect crafted gem", itr->second.ItemId);
+                LOG_ERROR("module", "{} as it's a perfect crafted gem", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -499,7 +508,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (hasNoPrice == true && isItemEnhancement == false && isEnchantingTradeGood == false)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled misc item", itr->second.ItemId);
+                LOG_ERROR("module", "{} misc item", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -507,7 +516,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Quality == ITEM_QUALITY_NORMAL && itr->second.Class == ITEM_CLASS_WEAPON)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled common weapon", itr->second.ItemId);
+                LOG_ERROR("module", "{} common weapon", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -515,7 +524,7 @@ void AuctionHouseBot::populateItemCandidateList()
         if (itr->second.Quality == ITEM_QUALITY_NORMAL && itr->second.Class == ITEM_CLASS_ARMOR)
         {
             if (debug_Out_Filters)
-                LOG_ERROR("module", "AuctionHouseBot: Item {} disabled common non-misc armor", itr->second.ItemId);
+                LOG_ERROR("module", "{} common non-misc armor", formatItemDisabledLog(itr));
             continue;
         }
 
@@ -539,6 +548,17 @@ void AuctionHouseBot::populateItemCandidateList()
         for (auto& itemCandidatesInClass : itemCandidatesByItemClass)
         {
             LOG_INFO("module", "Item count in class {} is {}", itemCandidatesInClass.first, itemCandidatesInClass.second.size());
+
+            if (itemCandidatesInClass.second.size() <= 10)
+            {
+                for (auto itemId : itemCandidatesInClass.second)
+                {
+                    if (const ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(itemId))
+                    {
+                        LOG_INFO("module", "    -> Item {} [{}]", itemTemplate->ItemId, itemTemplate->Name1);
+                    }
+                }
+            }
         }
     }
 }
@@ -605,10 +625,15 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
     for (uint32 cnt = 1; cnt <= items; cnt++)
     {
         if (debug_Out)
-            LOG_ERROR("module", "AHSeller: {} count", cnt);
+            LOG_ERROR("module", "AHSeller: posting {} out of {}", cnt, items);
+
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: weighted proportion list size: {}", itemCandidateClassWeightedProportionList.size());
 
         // Pull a random item out of the candidate list
         uint32 chosenItemClass = itemCandidateClassWeightedProportionList[urand(0, itemCandidateClassWeightedProportionList.size() - 1)];
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: randomly chosen item class: {}", chosenItemClass);
         uint32 itemID = 0;
         if (itemCandidatesByItemClass[chosenItemClass].size() != 0)
             itemID = itemCandidatesByItemClass[chosenItemClass][urand(0, itemCandidatesByItemClass[chosenItemClass].size() - 1)];
@@ -617,15 +642,18 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         if (itemID == 0)
         {
             if (debug_Out)
-                LOG_ERROR("module", "AHSeller: Item::CreateItem() - ItemID is 0", chosenItemClass);
+                LOG_ERROR("module", "    AHSeller: Item::CreateItem() - ItemID is 0", chosenItemClass);
             continue;
         }
+
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: randomly chosen item id {}", itemID);
 
         ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemID);
         if (prototype == NULL)
         {
             if (debug_Out)
-                LOG_ERROR("module", "AHSeller: prototype == NULL");
+                LOG_ERROR("module", "    AHSeller: prototype == NULL");
             continue;
         }
 
@@ -633,7 +661,7 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         if (item == NULL)
         {
             if (debug_Out)
-                LOG_ERROR("module", "AHSeller: Item::CreateItem() returned NULL");
+                LOG_ERROR("module", "    AHSeller: Item::CreateItem() returned NULL");
             break;
         }
         item->AddToUpdateQueueOf(AHBplayer);
@@ -676,6 +704,8 @@ void AuctionHouseBot::addNewAuctions(Player* AHBplayer, AHBConfig *config)
         auctionHouse->AddAuction(auctionEntry);
         auctionEntry->SaveToDB(trans);
         CharacterDatabase.CommitTransaction(trans);
+        if (debug_Out)
+            LOG_ERROR("module", "    AHSeller: auction created");
     }
 }
 
