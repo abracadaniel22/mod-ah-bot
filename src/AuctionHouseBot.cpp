@@ -87,6 +87,35 @@ uint32 AuctionHouseBot::getStackSizeForItem(ItemTemplate const* itemProto) const
         return 1;
 }
 
+uint64 AuctionHouseBot::urand_moneycap_safe(uint64 minVal, uint64 maxVal,
+                           const char* file = __FILE__,
+                           int line = __LINE__)
+{
+    constexpr uint64 MAX_MONEY_CAP = 2147483647;
+
+    if (minVal > MAX_MONEY_CAP)
+    {
+        if (debug_Out)
+            LOG_ERROR("module", "AHBot: rnd min {} exceeds cap, clamping to {} (called from {}:{})",
+                    minVal, MAX_MONEY_CAP, file, line);
+        //minVal = MAX_MONEY_CAP;
+    }
+
+    if (maxVal > MAX_MONEY_CAP)
+    {
+        if (debug_Out)
+            LOG_ERROR("module", "AHBot: rnd max {} exceeds cap, clamping to {} (called from {}:{})",
+                    maxVal, MAX_MONEY_CAP, file, line);
+        //maxVal = MAX_MONEY_CAP;
+    }
+
+    // leaving here for now, we want the server to crash so we can debug
+    return urand(minVal, maxVal);
+
+    //return urand(static_cast<uint32>(minVal), static_cast<uint32>(maxVal));
+
+}
+
 uint64 AuctionHouseBot::getItemValueFromDb(ItemTemplate const* itemProto)
 {
     uint64 minBidPrice = 0;
@@ -178,9 +207,9 @@ void AuctionHouseBot::computeItemValue(ItemTemplate const* itemProto, uint64& ou
     
     // Set the minimum price
     if (outBuyoutPrice < priceMultipliers.PriceMinimumCenterBase)
-        outBuyoutPrice = urand(priceMultipliers.PriceMinimumCenterBase * 0.75, priceMultipliers.PriceMinimumCenterBase * 1.25);
+        outBuyoutPrice = urand_moneycap_safe(priceMultipliers.PriceMinimumCenterBase * 0.75, priceMultipliers.PriceMinimumCenterBase * 1.25);
     else
-        outBuyoutPrice = urand(outBuyoutPrice * 0.75, outBuyoutPrice * 1.25);
+        outBuyoutPrice = urand_moneycap_safe(outBuyoutPrice * 0.75, outBuyoutPrice * 1.25);
 
     // Multiply the price based on multipliers
     outBuyoutPrice *= priceMultipliers.qualityPriceMultplier;
@@ -199,18 +228,18 @@ void AuctionHouseBot::computeItemValue(ItemTemplate const* itemProto, uint64& ou
     // Calculate buyout price with a variance
     float sellVarianceBuyoutPriceTopPercent = 1.30;
     float sellVarianceBuyoutPriceBottomPercent = 0.70;
-    outBuyoutPrice = urand(sellVarianceBuyoutPriceBottomPercent * outBuyoutPrice, sellVarianceBuyoutPriceTopPercent * outBuyoutPrice);
+    outBuyoutPrice = urand_moneycap_safe(sellVarianceBuyoutPriceBottomPercent * outBuyoutPrice, sellVarianceBuyoutPriceTopPercent * outBuyoutPrice);
 
     // Calculate a bid price based on a variance against buyout price
     float sellVarianceBidPriceTopPercent = 1;
     float sellVarianceBidPriceBottomPercent = .75;
-    outBidPrice = urand(sellVarianceBidPriceBottomPercent * outBuyoutPrice, sellVarianceBidPriceTopPercent * outBuyoutPrice);
+    outBidPrice = urand_moneycap_safe(sellVarianceBidPriceBottomPercent * outBuyoutPrice, sellVarianceBidPriceTopPercent * outBuyoutPrice);
 
     // If variance brought price below sell price, bring it back up to avoid making money off vendoring AH items
     if (outBuyoutPrice < itemProto->SellPrice)
     {
         float minLowPriceAddVariancePercent = 1.25;
-        outBuyoutPrice = urand(itemProto->SellPrice, minLowPriceAddVariancePercent * itemProto->SellPrice);
+        outBuyoutPrice = urand_moneycap_safe(itemProto->SellPrice, minLowPriceAddVariancePercent * itemProto->SellPrice);
     }
 
     // Bid price can never be below sell price
@@ -229,8 +258,9 @@ void AuctionHouseBot::calculateItemValueForSeller(ItemTemplate const* itemProto,
         constexpr uint64 MAX_MONEY_CAP = 2147483647;
         if (minBidPrice > MAX_MONEY_CAP)
         {
-            LOG_DEBUG("module", "Item {} [{}]: price saved in db ({}) exceeds gold cap ({}), setting it to gold cap", 
-                      itemProto->ItemId, itemProto->Name1, minBidPrice, MAX_MONEY_CAP);
+            if (debug_Out)
+                LOG_ERROR("module", "AHSeller: Item {} [{}]: price saved in db ({}) exceeds gold cap ({}), using gold cap", 
+                          itemProto->ItemId, itemProto->Name1, minBidPrice, MAX_MONEY_CAP);
             minBidPrice = MAX_MONEY_CAP;
         }
         outBidPrice = minBidPrice;
@@ -311,7 +341,7 @@ void AuctionHouseBot::calculateItemValueForBuyer(ItemTemplate const* itemProto, 
     if (UseDatabasePrices && !BuyerUseDbPricesExclusively)
     {
         // Set the minimum price
-        outBuyoutPrice = urand(outBuyoutPrice, outBuyoutPrice * 1.25);
+        outBuyoutPrice = urand_moneycap_safe(outBuyoutPrice, outBuyoutPrice * 1.25);
     }
 }
 

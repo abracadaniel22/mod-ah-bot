@@ -257,6 +257,7 @@ private:
     void populateItemCandidateList();
     void addNewAuctions(Player* AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player* AHBplayer, AHBConfig *config);
+    uint64 urand_moneycap_safe(uint64 minVal, uint64 maxVal, const char* file, int line);
 
     AuctionHouseBot();
 
